@@ -2,7 +2,7 @@ Unit GeneralP;
 {Version 1.2}
 interface
 uses
-{$IfNDef GPC}
+{$IfNDef __GPC__}
   DOS,
 {$EndIf}
 {$IfDef SPEED}
@@ -11,20 +11,24 @@ uses
 {$IfDef VIRTUALPASCAL}
  {Use32,} OS2Base, OS2Def,
 {$EndIf}
-{$IfDef LINUX}
-  Linux,
+{$IfDef UNIX}
+ {$ifdef FPC}
+  linux,
+ {$endif}
 {$EndIf}
-  Strings,
+{$ifndef __GPC__}
+  strings,
+{$endif}
   Types;
 
 Const
-{$IfDef LINUX}
+{$IfDef UNIX}
   DirSep = '/';
 {$Else}
   DirSep = '\';
 {$EndIf}
 
-{$IfDef GPC}
+{$IfDef __GPC__}
   pi = 3.14159265358979323846;
   MaxLongInt = MaxInt;
 {$EndIf}
@@ -85,12 +89,12 @@ Const
       $6e17, $7e36, $4e55, $5e74, $2e93, $3eb2, $0ed1, $1ef0);
 
 Var
- FilePerm: Word; {Permission used for created files under Linux}
- DirPerm: Word; {Permission used for created directories under Linux}
+ FilePerm: Word; {Permission used for created files under UNIX}
+ DirPerm: Word; {Permission used for created directories under UNIX}
  ChangePerm: Boolean; {change permissions when copying or moving files?}
 
 
-{$IfDef GPC}
+{$IfDef __GPC__}
 Procedure Assign ( Var T: Text; Name: String255 );
 Procedure FillChar ( Var Dest: Void; Count: Integer; C: Char );
 Function ParamCount: Integer;  (* This is stupid. *)
@@ -100,7 +104,7 @@ Function UpCase ( Ch: Char ): Char;
 function StrPas(Src: CString): String255;
 function StrPCopy(Dest: CString; Src: String): CString;
 Function Exec(prog, params: String255): Integer;
-{$EndIf GPC}
+{$EndIf __GPC__}
 
 Procedure Delay(secs: Word);
 
@@ -128,11 +132,11 @@ Function KillSpcs(s: String): String;
 Function AddDirSep(s: String255): String255;
 Function GregorianToJulian(DT: TimeTyp): ULong;
 Procedure JulianToGregorian(JulianDN : ULong; Var Year, Month, Day : Word);
-Procedure UnixToDt(SecsPast: ULong; Var Dt: TimeTyp);
-Function DTToUnixDate(DT: TimeTyp): ULong;
-Function DTToUnixStr(DT: TimeTyp): String20;
-Function DTToUnixHexStr(DT: TimeTyp): String8;
-Function ToUnixDate(FDate: LongInt): ULong;
+Procedure UNIXToDt(SecsPast: ULong; Var Dt: TimeTyp);
+Function DTToUNIXDate(DT: TimeTyp): ULong;
+Function DTToUNIXStr(DT: TimeTyp): String20;
+Function DTToUNIXHexStr(DT: TimeTyp): String8;
+Function ToUNIXDate(FDate: LongInt): ULong;
 Function IntToStr(x: LongInt):String255;
 Function IntToStr0(x: LongInt):String255;
 Function IntToStr03(x: Word):String3;
@@ -164,7 +168,7 @@ implementation
 Const fCarry = $0001;
 
 
-{$IfDef GPC}
+{$IfDef __GPC__}
 
 Procedure Assign ( Var T: Text; Name: String255 );
 Var
@@ -176,7 +180,7 @@ begin
   B.Name:= Name + chr ( 0 );
   bind ( T, B );
   B:= binding ( T );
-end
+end;
 
 Procedure FillChar ( Var Dest: Void; Count: Integer; C: Char );
 
@@ -196,7 +200,7 @@ begin
       p^:= ord ( C );
       LongInt ( p ) := LongInt(p) + 1;
     end
-end
+end;
 
 Function rtsParamCount: Integer;
 AsmName '_p_paramcount';
@@ -208,7 +212,7 @@ AsmName '_p_paramstr';
 Function ParamCount: Integer; 
 begin
   ParamCount:= rtsParamCount - 1;
-end
+end;
 
 
 Function ParamStr ( i: Integer ): String255;
@@ -240,7 +244,7 @@ begin
       begin
         Contents:= Contents + C^;
         LongInt ( C ) := LongInt(C)+1;
-      end 
+      end; 
   GetEnv:= Contents;
 end;
 
@@ -300,7 +304,7 @@ Function _itoa (value: integer; s: cstring; radix: integer): CString; C;
 Function _ltoa (value: LongInt; s: cstring; radix: integer): CString; C;
 Function _ultoa (value: ULong; s: cstring; radix: integer): CString; C;
 
-{$ENDIF GPC}
+{$ENDIF __GPC__}
 
 
 Procedure Delay(secs: Word);
@@ -459,7 +463,11 @@ end;
 {$Else}
 Procedure Today(var Date : TimeTyp);
 begin
+{$ifdef __GPC__}
+With Date do GetDate(Year, Month, Day, DayOfWeek);
+{$else}
 With Date do DOS.GetDate(Year, Month, Day, DayOfWeek);
+{$endif}
 end;
 {$EndIf}
 
@@ -481,7 +489,11 @@ end;
 {$Else}
 Procedure Now(var Time : TimeTyp);
 begin
+{$ifdef __GPC__}
+With Time do GetTime(Hour, Min, Sec, Sec100);
+{$else}
 With Time do DOS.GetTime(Hour, Min, Sec, Sec100);
+{$endif}
 end;
 {$EndIf}
 
@@ -610,7 +622,7 @@ Procedure JulianToGregorian(JulianDN : ULong; Var Year, Month,
   Day := YDay;
   End;
 
-Procedure UnixToDt(SecsPast: ULong; Var Dt: TimeTyp);
+Procedure UNIXToDt(SecsPast: ULong; Var Dt: TimeTyp);
   Var
     DateNum: ULong;
 
@@ -624,17 +636,17 @@ Procedure UnixToDt(SecsPast: ULong; Var Dt: TimeTyp);
   DT.Sec := SecsPast Mod 60;
   End;
 
-Function DTToUnixDate(DT: TimeTyp): ULong;
+Function DTToUNIXDate(DT: TimeTyp): ULong;
    Var
      SecsPast, DaysPast: ULong;
 
   Begin
   DaysPast := GregorianToJulian(DT) - c1970;
   SecsPast := DT.Sec + ULong(DT.Min)*60 + ULong(DT.Hour)*3600 + DaysPast*86400;
-  DTToUnixDate := SecsPast;
+  DTToUNIXDate := SecsPast;
   End;
 
-Function ToUnixDate(FDate: LongInt): ULong;
+Function ToUNIXDate(FDate: LongInt): ULong;
   Var
 {$IfDef VIRTUALPASCAL}
       DT: DOS.DateTime;
@@ -652,38 +664,38 @@ Function ToUnixDate(FDate: LongInt): ULong;
   dt2.Min := dt.Min;
   dt2.Sec := dt.Sec;
   dt2.Sec100 := 0;
-  ToUnixDate := DTToUnixDate(Dt2);
+  ToUNIXDate := DTToUnixDate(Dt2);
   End;
 
-Function DTToUnixStr(DT: TimeTyp): String20;
+Function DTToUNIXStr(DT: TimeTyp): String20;
 Var
   s : String[20];
 
   Begin
-  Str(DTToUnixDate(DT), s);
-  DTToUnixStr := s;
+  Str(DTToUNIXDate(DT), s);
+  DTToUNIXStr := s;
   End;
 
-Function DTToUnixHexStr(DT: TimeTyp): String8;
+Function DTToUNIXHexStr(DT: TimeTyp): String8;
 Var
   s : String[20];
   i: ULong;
 
   Begin
-  i := DTToUnixDate(DT);
+  i := DTToUNIXDate(DT);
   s := WordToHex(word(i SHR 16)) + WordToHex(word(i));
-  DTToUnixHexStr := s;
+  DTToUNIXHexStr := s;
   End;
 
 Function IntToStr(x: LongInt):String255;
 Var
   s : String255;
-{$IfDef GPC}
+{$IfDef __GPC__}
   cs: CString;
 {$EndIf}
 
   Begin
-{$IfDef GPC}
+{$IfDef __GPC__}
   GetMem(cs, 256);
   cs := _itoa(x, cs, 10);
   s := StrPas(cs);
@@ -826,7 +838,7 @@ Function MakeDir(Dir: String128): Boolean;
       {$I-} MkDir(Dir); {$I+}
       If (IOResult = 0) then
        Begin
-{$IfDef Linux}
+{$IfDef UNIX}
        Chmod(Dir, DirPerm);
 {$EndIf}
        MakeDir := True;
@@ -837,7 +849,7 @@ Function MakeDir(Dir: String128): Boolean;
     End
   Else
    Begin
-{$IfDef Linux}
+{$IfDef UNIX}
    Chmod(Dir, DirPerm);
 {$EndIf}
    MakeDir := True;
@@ -1008,7 +1020,7 @@ Var
     {$I-} Rename(f, NName); {$I+}
     If ((IOResult <> 0) or not FileExist(NName)) then
       Begin
-{$IfDef LINUX}
+{$IfDef UNIX}
       shell('cp '+OName+' '+NName);
       If ChangePerm then ChMod(NName, FilePerm);
 {$Else}
@@ -1065,7 +1077,7 @@ Var
   {$I-} Rename(f, NName); {$I+}
   If ((IOResult <> 0) or not FileExist(NName)) then
     Begin
-{$IfDef LINUX}
+{$IfDef UNIX}
     shell('cp '+OName+' '+NName);
     If ChangePerm then Chmod(NName, FilePerm);
 {$Else}
@@ -1099,7 +1111,7 @@ Var
 {$Else}
 
   Begin
-{$IfDef LINUX}
+{$IfDef UNIX}
   shell('cp '+OName+' '+NName);
   If ChangePerm then Chmod(NName, FilePerm);
 {$Else}
@@ -1149,7 +1161,7 @@ Var
    {$I-} WriteLn(f); {$I+}
    i := IOResult;
    {$I-} Close(f); {$I+}
-{$IfDef Linux}
+{$IfDef UNIX}
    Chmod(Name, FilePerm);
 {$EndIf}
    CreateSem := (IOResult = 0) and (i = 0);
@@ -1311,7 +1323,7 @@ Var
  End;
 
 Begin
-{$IfDef Linux}
+{$IfDef UNIX}
 If (DOS.GetEnv('UMASK') <> '') then
  Begin
  FilePerm := OctalStrToInt(DOS.GetEnv('UMASK'));

@@ -4,7 +4,7 @@ UNIT crc32;
 {$V-}
 {$S+}
 {$F+}
-{$D-}
+{ $D-}
 { $L-}
 {$R-}
 {$X+}
@@ -18,7 +18,7 @@ UNIT crc32;
   {$DEFINE BASMINT}         {Use BASM for interrupts under windows}
 {$ENDIF}
 
-{.$DEFINE OPRO}             {Remove dot to use with OPRO}
+{. $DEFINE OPRO}             {Remove dot to use with OPRO}
 
 INTERFACE
 

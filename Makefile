@@ -4,17 +4,35 @@
 include ../huskymak.cfg
 
 ifeq ($(DEBUG), 1)
+ifeq ($(PC), ppc386)
   POPT = -d$(OSTYPE) -Fu$(INCDIR) -dDEBUG
+  PCOPT = $(POPT)
 else
+  POPT = -D$(OSTYPE) -DDEBUG
+  PCOPT = $(POPT) -c
+endif
+else
+ifeq ($(PC), ppc386)
   POPT = -d$(OSTYPE) -Fu$(INCDIR) -dRELEASE
+  PCOPT = $(POPT)
+else
+  POPT = -D$(OSTYPE) -DRELEASE
+  PCOPT = $(POPT) -c
+endif
 endif
 
 
-PASFILES = crc32.pas generalp.pas inifile.pas log.pas mkdos.pas mkffile.pas mkfile.pas mkglobt.pas mkmisc.pas mkmsgabs.pas mkmsgezy.pas mkmsgfid.pas mkmsghud.pas mkmsgjam.pas mkmsgsqu.pas mkopen.pas mkstring.pas progate.pas types.pas
-
 all: progate$(EXE)
 
-progate$(EXE): $(PASFILES)
+%$(OBJ): %.pas
+	$(PC) $(PCOPT) $*.pas
+
+generalp$(OBJ): types$(OBJ)
+
+progate$(EXE): crc32$(OBJ) generalp$(OBJ) inifile$(OBJ) log$(OBJ) mkdos$(OBJ) \
+               mkffile$(OBJ) mkglobt$(OBJ) mkmisc$(OBJ) mkmsgabs$(OBJ) \
+               mkmsgezy$(OBJ) mkmsgfido$(OBJ) mkmsghud$(OBJ) mkmsgjam$(OBJ) \
+               mkmsgsqu$(OBJ) mkopen$(OBJ) mkstring$(OBJ) types$(OBJ)
 	$(PC) $(POPT) progate.pas
 
 clean:

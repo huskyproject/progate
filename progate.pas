@@ -12,9 +12,13 @@ Program ProGate; {internet<->fido-gate}
 
 Uses
 {$IfDef UNIX}
+ {$IfDef FPC}
  Linux,
+ {$EndIf}
 {$EndIf}
+{$IfNDef __GPC__}
  DOS,
+{$EndIf}
  MKGlobT, MKMisc, MKMsgAbs, MKMsgFid, MKMsgEzy, MKMsgJam, MKMsgHud, MKMsgSqu,
  Types, GeneralP, IniFile, Log;
 {$IfDef VP}
