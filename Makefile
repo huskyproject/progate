@@ -36,17 +36,17 @@ progate$(EXE): crc32$(OBJ) generalp$(OBJ) inifile$(OBJ) log$(OBJ) mkdos$(OBJ) \
 	$(PC) $(POPT) progate.pas
 
 clean:
-	-$(RM) *$(OBJ)
-	-$(RM) *$(LIB)
-	-$(RM) *$(TPU)
-	-$(RM) *~
+	-$(RM) $(RMOPT) *$(OBJ)
+	-$(RM) $(RMOPT) *$(LIB)
+	-$(RM) $(RMOPT) *$(TPU)
+	-$(RM) $(RMOPT) *~
 
 distclean: clean
-	-$(RM) progate$(EXE)
+	-$(RM) $(RMOPT) progate$(EXE)
 
 install:
 	$(INSTALL) $(IBOPT) progate$(EXE) $(BINDIR)
 
 uninstall:
-	-$(RM) $(BINDIR)$(DIRSEP)progate$(EXE)
+	-$(RM) $(RMOPT) $(BINDIR)$(DIRSEP)progate$(EXE)
 
