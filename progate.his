@@ -36,3 +36,6 @@ Version 0.9beta5
 - changing directory to source file before encoding => no path in encoded
   mails
 
+Version 0.9beta6
+* progate wont send mails with a "sent" flag now.
+

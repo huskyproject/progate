@@ -1212,7 +1212,7 @@ Var
    Write('                             '#13'Msg #', GetMsgDisplayNum);
    GetDest(MKAddr);
    MKAddr2TNetAddr(MKAddr, A1);
-   If CompAddr(A1, Cfg^.GateAddr) and (not IsRcvd) then
+   If CompAddr(A1, Cfg^.GateAddr) and (not IsSent) then
     Begin
     WriteLn;
     {$I-} ReWrite(f); {$I+}
