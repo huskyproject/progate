@@ -47,3 +47,6 @@ distclean: clean
 install:
 	$(INSTALL) $(IBOPT) progate$(EXE) $(BINDIR)
 
+uninstall:
+	-$(RM) $(BINDIR)$(DIRSEP)progate$(EXE)
+
