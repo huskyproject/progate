@@ -1270,7 +1270,7 @@ Var
       CreateEMail(Sender, Rcpt, GetSubj, s);
       End;
      LogWriteLn(lh, '');
-     If Msg^.IsKillSent then DeleteMsg;
+     If IsKillSent then DeleteMsg;
      End;
     End;
    SeekNext;
