@@ -11,7 +11,7 @@ Program ProGate; {internet<->fido-gate}
 {$EndIf}
 
 Uses
-{$IfDef Linux}
+{$IfDef UNIX}
  Linux,
 {$EndIf}
  DOS,
@@ -28,7 +28,7 @@ Const
 {$IfDef OS2}
   Version = '/2'
 {$Else}
- {$IfDef LINUX}
+ {$IfDef UNIX}
  Version = '/Lx'
  {$Else}
   {$IfDef DPMI}
@@ -268,7 +268,7 @@ Var
   Begin
   Write(MsgIDFile, CurMsgID, #13#10);
   Close(MsgIDFile);
-{$IfDef Linux}
+{$IfDef UNIX}
   ChMod(Dir + 'msgid.dat', FilePerm);
 {$EndIf}
   End;
@@ -309,7 +309,7 @@ Var
 
   GetDir(0, OldDir);
   ChDir(Cfg^.PKT_Inbound);
-{$IfDef Linux}
+{$IfDef UNIX}
   Shell(s);
 {$Else}
   SwapVectors;
@@ -364,7 +364,7 @@ Var
 
   GetDir(0, OldDir);
   ChDir(Cfg^.PKT_Inbound);
-{$IfDef Linux}
+{$IfDef UNIX}
   Shell(s);
 {$Else}
   SwapVectors;
@@ -392,7 +392,7 @@ Var
   Begin
   WriteLn(f, ShortName);
   Close(f);
-{$IfDef Linux}
+{$IfDef UNIX}
   ChMod(Cfg^.PrioSem, FilePerm);
 {$EndIf}
   End;
@@ -915,7 +915,7 @@ Var
     i := DOSExitCode(Exec(GetEnv('COMSPEC'), '/C '+s));
  {$EndIF}
 {$Else}
- {$IfDef Linux}
+ {$IfDef UNIX}
     i := Shell(s);
  {$Else}
     SwapVectors;
@@ -983,7 +983,7 @@ Var
       WriteLn(f, 'HTo: '+Rcpt);
       WriteLn(f, 'R<'+Rcpt+'>');
       Close(f);
-  {$IfDef Linux}
+  {$IfDef UNIX}
       ChMod(Cfg^.MQueue+'tf'+fname, FilePerm);
   {$EndIf}
       {$I-} Rename(f, Cfg^.MQueue+'qf'+fname); {$I+}
@@ -1058,7 +1058,7 @@ Var
          If (s[1] <> #1) then WriteLn(f, s);
          End;
         Close(f);
-{$IfDef Linux}
+{$IfDef UNIX}
         ChMod(Cfg^.Tmp+ShortName+'.tmp', FilePerm);
 {$EndIf}
         Decode(CurLink^.Method, Cfg^.Tmp+ShortName+'.tmp');
@@ -1166,7 +1166,7 @@ Delivered-To (receiver):
      End;
 
     Close(TempF);
-{$IfDef Linux}
+{$IfDef UNIX}
     ChMod(Cfg^.Tmp+ShortName+'.tmp', FilePerm);
 {$EndIf}
     If (_To = '') then _To := Copy(fname, LastPos(DirSep, fname)+1,
@@ -1241,7 +1241,7 @@ Var
       Else If (s[1] <> #1) then WriteLn(f, s);
       End;
      Close(f);
-{$IfDef Linux}
+{$IfDef UNIX}
      ChMod(Cfg^.Tmp+ShortName+'.tmp', FilePerm);
 {$EndIf}
      If IsCrash then

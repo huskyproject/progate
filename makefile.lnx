@@ -1,12 +1,14 @@
 #!/usr/bin/make -f
 
-# include Husky-Makefile-Config
-include ../huskymak.cfg
+DEBUG=1
+INCDIR=/usr/local/include
+BINDIR=/usr/local/bin
+IBOPT=
 
 ifeq ($(DEBUG), 1)
-  PASOPT = -dLinux -Fu$(INCDIR) -dDEBUG
+  POPT = -dUNIX -Fu$(INCDIR) -dDEBUG
 else
-  PASOPT = -dLinux -Fu$(INCDIR) -dRELEASE
+  POPT = -dUNIX -Fu$(INCDIR) -dRELEASE
 endif
 
 
@@ -15,7 +17,7 @@ PASFILES = crc32.pas generalp.pas inifile.pas log.pas mkdos.pas mkffile.pas mkfi
 all: progate
 
 progate: $(PASFILES)
-	ppc386 $(PASOPT) progate.pas
+	ppc386 $(POPT) progate.pas
 
 clean:
 	-rm *.o *.ppu *~

@@ -11,14 +11,14 @@ uses
 {$IfDef VIRTUALPASCAL}
  {Use32,} OS2Base, OS2Def,
 {$EndIf}
-{$IfDef LINUX}
+{$IfDef UNIX}
   Linux,
 {$EndIf}
   Strings,
   Types;
 
 Const
-{$IfDef LINUX}
+{$IfDef UNIX}
   DirSep = '/';
 {$Else}
   DirSep = '\';
@@ -84,8 +84,8 @@ Const
       $6e17, $7e36, $4e55, $5e74, $2e93, $3eb2, $0ed1, $1ef0);
 
 Var
- FilePerm: Word; {Permission used for created files under Linux}
- DirPerm: Word; {Permission used for created directories under Linux}
+ FilePerm: Word; {Permission used for created files under Unix}
+ DirPerm: Word; {Permission used for created directories under Unix}
  ChangePerm: Boolean; {change permissions when copying or moving files?}
 
 
@@ -795,7 +795,7 @@ Function MakeDir(Dir: String128): Boolean;
       {$I-} MkDir(Dir); {$I+}
       If (IOResult = 0) then
        Begin
-{$IfDef Linux}
+{$IfDef UNIX}
        Chmod(Dir, DirPerm);
 {$EndIf}
        MakeDir := True;
@@ -806,7 +806,7 @@ Function MakeDir(Dir: String128): Boolean;
     End
   Else
    Begin
-{$IfDef Linux}
+{$IfDef UNIX}
    Chmod(Dir, DirPerm);
 {$EndIf}
    MakeDir := True;
@@ -977,7 +977,7 @@ Var
     {$I-} Rename(f, NName); {$I+}
     If ((IOResult <> 0) or not FileExist(NName)) then
       Begin
-{$IfDef LINUX}
+{$IfDef UNIX}
       shell('cp '+OName+' '+NName);
       If ChangePerm then ChMod(NName, FilePerm);
 {$Else}
@@ -1034,7 +1034,7 @@ Var
   {$I-} Rename(f, NName); {$I+}
   If ((IOResult <> 0) or not FileExist(NName)) then
     Begin
-{$IfDef LINUX}
+{$IfDef UNIX}
     shell('cp '+OName+' '+NName);
     If ChangePerm then Chmod(NName, FilePerm);
 {$Else}
@@ -1068,7 +1068,7 @@ Var
 {$Else}
 
   Begin
-{$IfDef LINUX}
+{$IfDef UNIX}
   shell('cp '+OName+' '+NName);
   If ChangePerm then Chmod(NName, FilePerm);
 {$Else}
@@ -1118,7 +1118,7 @@ Var
    {$I-} WriteLn(f); {$I+}
    i := IOResult;
    {$I-} Close(f); {$I+}
-{$IfDef Linux}
+{$IfDef UNIX}
    Chmod(Name, FilePerm);
 {$EndIf}
    CreateSem := (IOResult = 0) and (i = 0);
@@ -1280,7 +1280,7 @@ Var
  End;
 
 Begin
-{$IfDef Linux}
+{$IfDef UNIX}
 If (DOS.GetEnv('UMASK') <> '') then
  Begin
  FilePerm := Octal(StrToInt(DOS.GetEnv('UMASK')));
