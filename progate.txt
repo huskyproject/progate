@@ -1,0 +1,13 @@
+
+                          ProGate - documentation
+
+Not finished yet.
+
+Author: Sascha Silbe, 2:2435/424
+
+environment variables:
+PROGATE         path where progate.cfg can be found (if nothing is found there,
+                the current directory is used)
+MSGID           path where msgid.dat can be found (if not set, the current
+                directory is used)
+

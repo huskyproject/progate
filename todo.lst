@@ -1,0 +1,5 @@
+- fix bugs :)
+- use external program to post emails instead of writing into sendmail-queue
+- use fidoconfig
+- read GateBau-Docs :)
+

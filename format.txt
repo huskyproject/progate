@@ -1,0 +1,76 @@
+sendmail queue (\mptn\etc\mqueue):
+
+Filename: <type>f<ID>
+<ID>: [A-Z][A-Z][A-Z][0-9][0-9][0-9][0-9][0-9]
+first letter of ID: hour (e.g.: A for 00:00-01:00)
+<type>:
+        "d": data file = body without header
+        "q": queue control file
+        "t": temporary (very short time)
+        "x": session transcript, only existing during session
+
+queue control file:
+        "V": Version:
+             V<version> (default version: 0)
+        "H": header lines
+             H<header line>
+        "C": controlling address
+             C<local user>:<alias>
+             <local user>: user from /etc/passwd
+             <alias>: name of the alias that expanded to this address
+                      (used for printing)
+        "Q": original recipient (ESMTP)
+        "R": Recipient address
+Version 1+:
+        leading (in every line) Flags:
+             "S": Return a msg on successful final delivery
+             "F":    "   "  "  "  failure
+             "D":    "   "  "  if delayed
+             "B": return body
+             "N": do not return body
+             "P": primary address (command line or SMTP-session)
+             ".": end of flags
+        "S": sender address
+        "T": job creation time
+        "P": current priority
+             higher number = lower priority
+             changes with waiting time
+        "M": message (status information)
+             printed by the mailq command
+        "F": Flag bits:
+             "r": is response
+             "w": is warning (delay)
+        "N": total number of delivery attempts
+        "K": time of last delivery attempt
+        "I": I-Number of data file (for recovery)
+        "D": name of datafile
+        "$": macro definition (only $r and $s are passed)
+        "B": body type
+             "7BIT": 7 Bit
+             "8BITMIME": 8 Bit, MIME
+        "O": original MTS (ESMTP, only for status notifications)
+        "Z": original envelope ID (ESMTP, only for status notifications)
+
+=== begin example ===
+P835771
+T404261372
+Seric
+Ceric:sendmail@vangogh.CS.Berkeley.EDU
+Reric@mammoth.Berkeley.EDU
+Rbostic@okeeffe.CS.Berkeley.EDU
+H?P?return-path: <owner-sendmail@vangogh.CS.Berkeley.EDU>
+Hreceived: by vangogh.CS.Berkeley.EDU (5.108/2.7) id AAA06703;
+        Fri, 17 Jul 92 00:28:55 -0700
+Hreceived: from mail.CS.Berkeley.EDU by vangogh.CS.Berkeley.EDU (5.108/2.7)
+        id AAA06698; Fri, 17 Jul 92 00:28:54 -0700
+Hreceived: from [128.32.31.21] by mail.CS.Berkeley.EDU (5.96/2.5)
+        id AA22777; Fri, 17 Jul 92 03:29:14 -0400
+Hreceived: by foo.bar.baz.de (5.57/Ultrix3.0-C)
+        id AA22757; Fri, 17 Jul 92 09:31:25 GMT
+H?F?from: eric@foo.bar.baz.de (Eric Allman)
+H?x?full-name: Eric Allman
+Hmessage-id: <9207170931.AA22757@foo.bar.baz.de>
+HTo: sendmail@vangogh.CS.Berkeley.EDU
+Hsubject: this is an example message
+=== end example ===
+

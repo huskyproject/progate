@@ -1,0 +1,22 @@
+History of ProGate:
+(- note, + added, * fixed)
+
+Version 0.9beta1
+- first release
+
+Version 0.9beta2
+* fixed GPF after gating email to netmail in OS/2-version (YACB - Yet Another
+  Compiler Bug)
++ REPLYADDR- and REPLYTO-Kludges according to FSC-0035
++ first two lines of the gated EMail are "FROM: <sender>" and "TO: <recipient>"
++ if a line beginning with "FROM:" is found in the first 3 Non-Kludge-lines
+  of the message, that address is used as the sender of the EMail
+
+Version 0.9beta3
+- invalid parts of dates are now set to current date
+- now only the first occurence of each headerline in incoming emails is used
++ SendMethod
++ SendProgram
++ commandline option "-c<cfgfile>"
++ UUEncoding FTN attaches
+
