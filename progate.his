@@ -26,3 +26,8 @@ sms:
 - reorganized Makefiles, please read README.Makefiles in the husky-common
   package!
 
+Version 0.9beta4
+- now using last "From:" of header
+* removed dependencies on spaces after header fields
+* setting Sent-Flag instead of Received-Flag for processed Netmails
+

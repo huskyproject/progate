@@ -38,7 +38,7 @@ Const
   {$EndIf}
  {$EndIf}
 {$EndIf}
-  + ' 0.9beta3';
+  + ' 0.9beta4';
 
   {TCfg.PKT_Mailer}
   cCM_BT              = 1;
@@ -1149,11 +1149,11 @@ Delivered-To (receiver):
        Begin
        If InHeader then {check for known headerlines}
         Begin
-        If ((Pos('To: ', Line) = 1) and (_To = '')) then _To := Copy(Line, 5, Length(Line)-4)
-        Else If ((Pos('From: ', Line) = 1) and (Sender = '')) then Sender := Copy(Line, 7, Length(Line)-6)
-        Else If ((Pos('Subject: ', Line) = 1) and (Subject = '')) then Subject := Copy(Line, 10, Length(Line)-9)
-        Else If ((Pos('Message-ID: ', Line) = 1) and (MsgID = '')) then MsgID := Copy(Line, 13, Length(Line)-12)
-        Else If ((Pos('Date: ', Line) = 1) and (DateWritten = '')) then DateWritten := Copy(Line, 7, Length(Line)-6);
+        If ((Pos('To:', Line) = 1) and (_To = '')) then _To := KillSpcs(Copy(Line, 4, Length(Line)-3))
+        Else If (Pos('From:', Line) = 1) then Sender := KillSpcs(Copy(Line, 6, Length(Line)-5))
+        Else If ((Pos('Subject:', Line) = 1) and (Subject = '')) then Subject := KillSpcs(Copy(Line, 9, Length(Line)-8))
+        Else If ((Pos('Message-ID:', Line) = 1) and (MsgID = '')) then MsgID := KillSpcs(Copy(Line, 12, Length(Line)-11))
+        Else If ((Pos('Date:', Line) = 1) and (DateWritten = '')) then DateWritten := KillSpcs(Copy(Line, 6, Length(Line)-5));
         WriteLn(TempF, #01+Line);
         End
        Else
@@ -1218,7 +1218,7 @@ Var
      End
     Else
      Begin
-     SetRcvd(True);
+     SetSent(True);
      ReWriteHdr;
      MsgTxtStartUp;
      If (UpStr(GetTo) <> 'UUCP') then Rcpt := GetTo
