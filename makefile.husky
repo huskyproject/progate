@@ -19,9 +19,9 @@ progate$(EXE): $(PASFILES)
 
 clean:
 	-$(RM) *$(OBJ)
-        -$(RM) *$(LIB)
-        -$(RM) *$(TPU)
-        -$(RM) *~
+	-$(RM) *$(LIB)
+	-$(RM) *$(TPU)
+	-$(RM) *~
 
 distclean: clean
 	-$(RM) progate$(EXE)
