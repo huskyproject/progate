@@ -31,7 +31,7 @@ generalp$(OBJ): types$(OBJ)
 
 progate$(EXE): crc32$(OBJ) generalp$(OBJ) inifile$(OBJ) log$(OBJ) mkdos$(OBJ) \
                mkffile$(OBJ) mkglobt$(OBJ) mkmisc$(OBJ) mkmsgabs$(OBJ) \
-               mkmsgezy$(OBJ) mkmsgfido$(OBJ) mkmsghud$(OBJ) mkmsgjam$(OBJ) \
+               mkmsgezy$(OBJ) mkmsgfid$(OBJ) mkmsghud$(OBJ) mkmsgjam$(OBJ) \
                mkmsgsqu$(OBJ) mkopen$(OBJ) mkstring$(OBJ) types$(OBJ)
 	$(PC) $(POPT) progate.pas
 
