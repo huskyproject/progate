@@ -38,7 +38,7 @@ Const
   {$EndIf}
  {$EndIf}
 {$EndIf}
-  + ' 0.9beta4';
+  + ' 0.9beta6';
 
   {TCfg.PKT_Mailer}
   cCM_BT              = 1;
@@ -326,6 +326,8 @@ Var
  s: String;
  i: Byte;
  OldDir: String;
+ inDir: String;
+ inFile: String;
 
  Begin
  If (Cfg^.NumEnCoder = 0) then
@@ -345,13 +347,16 @@ Var
  Else
   Begin
   out_fname := Cfg^.EnCoders[CurMethod]^.OutFile;
+  i := LastPos(DirSep, in_fname);
+  inDir := Copy(in_fname, 1, i - 1);
+  inFile := Copy(in_fname, i + 1, Length(in_fname) - i);
 
   s := Cfg^.EnCoders[CurMethod]^.Command;
   i := Pos('%I', UpStr(s));
   While (i <> 0) do
    Begin
    Delete(s, i, 2);
-   Insert(in_fname, s, i);
+   Insert(inFile, s, i);
    i := Pos('%I', UpStr(s));
    End;
   i := Pos('%O', UpStr(s));
@@ -363,7 +368,7 @@ Var
    End;
 
   GetDir(0, OldDir);
-  ChDir(Cfg^.PKT_Inbound);
+  ChDir(inDir);
 {$IfDef UNIX}
   Shell(s);
 {$Else}
@@ -1140,7 +1145,7 @@ Delivered-To (receiver):
        If not EOF(MailBoxF) then ReadLn(MailBoxF, Line); {skip empty line between Header and Body}
        {add some infos to fido-mail}
        WriteLn(TempF, #1'REPLYADDR '+Sender);
-       WriteLn(TempF, #1'REPLYTO '+Addr2Str(Cfg^.GateAddr)+' UUCP');
+       WriteLn(TempF, #1'REPLYTO '+Addr2Str(Cfg^.GateAddr)+' '+Sender);
        WriteLn(TempF, 'FROM: ', Sender);
        WriteLn(TempF, 'TO: ', _To);
        End;

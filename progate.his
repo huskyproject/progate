@@ -31,3 +31,8 @@ Version 0.9beta4
 * removed dependencies on spaces after header fields
 * setting Sent-Flag instead of Received-Flag for processed Netmails
 
+Version 0.9beta5
+- now using sender name in REPLYTO kludge instead of "UUCP"
+- changing directory to source file before encoding => no path in encoded
+  mails
+

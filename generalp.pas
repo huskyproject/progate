@@ -11,14 +11,14 @@ uses
 {$IfDef VIRTUALPASCAL}
  {Use32,} OS2Base, OS2Def,
 {$EndIf}
-{$IfDef UNIX}
+{$IfDef LINUX}
   Linux,
 {$EndIf}
   Strings,
   Types;
 
 Const
-{$IfDef UNIX}
+{$IfDef LINUX}
   DirSep = '/';
 {$Else}
   DirSep = '\';
@@ -34,6 +34,7 @@ Const
   D0 =    1461;
   D1 =  146097;
   D2 = 1721119;
+  Digits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
   WkDaysEng  : Array[0..6] of String[9] = ('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday');
   WkDaysGer  : Array[0..6] of String[10] = ('Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag');
   WkDays3Eng : Array[0..6] of String[3] = ('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat');
@@ -84,8 +85,8 @@ Const
       $6e17, $7e36, $4e55, $5e74, $2e93, $3eb2, $0ed1, $1ef0);
 
 Var
- FilePerm: Word; {Permission used for created files under Unix}
- DirPerm: Word; {Permission used for created directories under Unix}
+ FilePerm: Word; {Permission used for created files under Linux}
+ DirPerm: Word; {Permission used for created directories under Linux}
  ChangePerm: Boolean; {change permissions when copying or moving files?}
 
 
@@ -101,9 +102,7 @@ function StrPCopy(Dest: CString; Src: String): CString;
 Function Exec(prog, params: String255): Integer;
 {$EndIf GPC}
 
-{$IfDef FPC}
 Procedure Delay(secs: Word);
-{$EndIf}
 
 {$IfNDef SPEED}
 Procedure GetFTime2(var f; var Year, Month, Day, Hour, Min, Sec: Word);
@@ -138,6 +137,7 @@ Function IntToStr(x: LongInt):String255;
 Function IntToStr0(x: LongInt):String255;
 Function IntToStr03(x: Word):String3;
 Function StrToInt(s: String255): LongInt;
+Function OctalStrToInt(s: String255): LongInt;
 Function FileExist(fn: String255):Boolean;
 Function DirExist(fn: String255):Boolean;
 Function LastPos(SubStr, S: String255): Byte;
@@ -170,13 +170,13 @@ Procedure Assign ( Var T: Text; Name: String255 );
 Var
   B: BindingType;
 
-begin (* Assign *)
+begin
   unbind ( T );
   B:= binding ( T );
   B.Name:= Name + chr ( 0 );
   bind ( T, B );
   B:= binding ( T );
-end (* Assign *);
+end
 
 Procedure FillChar ( Var Dest: Void; Count: Integer; C: Char );
 
@@ -186,17 +186,17 @@ Type
 Var
   p, q: BytePtr;
 
-begin (* FillChar *)
-  (*$W-*)  (* Warning "dereferencing `void *' pointer" is a minor bug in GPC *)
+begin
+  {$W-}  (* Warning "dereferencing `void *' pointer" is a minor bug in GPC *)
   p:= @Dest;
-  (*$W+*)
+  {$W+}
   q:= BytePtr ( LongInt ( p ) + Count );
   while LongInt ( p ) < LongInt ( q ) do
     begin
       p^:= ord ( C );
       LongInt ( p ) := LongInt(p) + 1;
-    end (* while *);
-end (* FillChar *);
+    end
+end
 
 Function rtsParamCount: Integer;
 AsmName '_p_paramcount';
@@ -205,24 +205,21 @@ Function rtsParamStr ( i: Integer; Var S: String255 ): Boolean;
 AsmName '_p_paramstr';
 
 
-Function ParamCount: Integer;  (* This is stupid. *)
-
-begin (* ParamCount *)
+Function ParamCount: Integer; 
+begin
   ParamCount:= rtsParamCount - 1;
-end (* ParamCount *);
+end
 
 
 Function ParamStr ( i: Integer ): String255;
-
 Var
   S: String255;
-
-begin (* ParamStr *)
+begin
   if rtsParamStr ( i, S ) then
     ParamStr:= Trim ( S )
   else
     ParamStr:= '';
-end (* ParamStr *);
+end;
 
 
 Function CGetEnv ( Entry: __CString__ ): PChar;
@@ -230,12 +227,11 @@ AsmName 'getenv';
 
 
 Function GetEnv ( Entry: String255 ): String255;
-
 Var
   C: PChar;
   Contents: String255;
 
-begin (* GetEnv *)
+begin
   C:= CGetEnv ( Entry );
   Contents:= '';
   if C <> Nil then
@@ -244,17 +240,16 @@ begin (* GetEnv *)
       begin
         Contents:= Contents + C^;
         LongInt ( C ) := LongInt(C)+1;
-      end (* while *);
+      end 
   GetEnv:= Contents;
-end (* GetEnv *);
+end;
 
 Function UpCase ( Ch: Char ): Char;
-
-begin (* UpCase *)
+begin
   if ( Ch >= 'a' ) and ( Ch <= 'z' ) then
     dec ( Ch, ord ( 'a' ) - ord ( 'A' ) );
   UpCase:= Ch;
-end (* UpCase *);
+end;
 
 { Convert a "C" string to a "Pascal" string }
 function StrPas(Src: CString): String255;
@@ -305,10 +300,9 @@ Function _itoa (value: integer; s: cstring; radix: integer): CString; C;
 Function _ltoa (value: LongInt; s: cstring; radix: integer): CString; C;
 Function _ultoa (value: ULong; s: cstring; radix: integer): CString; C;
 
-{$EndIf GPC}
+{$ENDIF GPC}
 
 
-{$IfDef FPC}
 Procedure Delay(secs: Word);
 Var
  i: Word;
@@ -317,7 +311,6 @@ Var
  {bogus delay}
  For i := 1 to 10000 do Write;
  End;
-{$EndIf}
 
 
 Function LowCase(Ch:Char):Char;
@@ -739,6 +732,44 @@ Var
  If (Error <> 0) then StrToInt := 0 Else StrToInt := x;
  End;
 
+Function OctalStrToInt(s: String255): LongInt;
+Var
+ Result: LongInt;
+ CurPos: Byte;
+ Pot8: LongInt;
+ CurNum: Byte;
+ Error: Byte;
+
+ Begin
+ Error := 0;
+ Result := 0;
+ Pot8 := 1;
+ for CurPos := length(s) downto 1 do
+   Begin
+   Case s[CurPos] of
+     '0': CurNum := 0;
+     '1': CurNum := 1;
+     '2': CurNum := 2;
+     '3': CurNum := 3;
+     '4': CurNum := 4;
+     '5': CurNum := 5;
+     '6': CurNum := 6;
+     '7': CurNum := 7;
+     '8': CurNum := 8;
+     '9': CurNum := 9;
+     else
+       Begin
+       CurNum := 0;
+       Error := CurPos;
+       End;
+     End;
+
+   Result := Result + (Pot8 * CurNum);
+   Pot8 := Pot8 * 8;
+   End;
+ If (Error = 0) then OctalStrToInt := Result Else OctalStrToInt := -1;
+ End;
+
 Function FileExist(fn: String255):Boolean;
 Var
   f: File;
@@ -795,7 +826,7 @@ Function MakeDir(Dir: String128): Boolean;
       {$I-} MkDir(Dir); {$I+}
       If (IOResult = 0) then
        Begin
-{$IfDef UNIX}
+{$IfDef Linux}
        Chmod(Dir, DirPerm);
 {$EndIf}
        MakeDir := True;
@@ -806,7 +837,7 @@ Function MakeDir(Dir: String128): Boolean;
     End
   Else
    Begin
-{$IfDef UNIX}
+{$IfDef Linux}
    Chmod(Dir, DirPerm);
 {$EndIf}
    MakeDir := True;
@@ -977,7 +1008,7 @@ Var
     {$I-} Rename(f, NName); {$I+}
     If ((IOResult <> 0) or not FileExist(NName)) then
       Begin
-{$IfDef UNIX}
+{$IfDef LINUX}
       shell('cp '+OName+' '+NName);
       If ChangePerm then ChMod(NName, FilePerm);
 {$Else}
@@ -1034,7 +1065,7 @@ Var
   {$I-} Rename(f, NName); {$I+}
   If ((IOResult <> 0) or not FileExist(NName)) then
     Begin
-{$IfDef UNIX}
+{$IfDef LINUX}
     shell('cp '+OName+' '+NName);
     If ChangePerm then Chmod(NName, FilePerm);
 {$Else}
@@ -1068,7 +1099,7 @@ Var
 {$Else}
 
   Begin
-{$IfDef UNIX}
+{$IfDef LINUX}
   shell('cp '+OName+' '+NName);
   If ChangePerm then Chmod(NName, FilePerm);
 {$Else}
@@ -1118,7 +1149,7 @@ Var
    {$I-} WriteLn(f); {$I+}
    i := IOResult;
    {$I-} Close(f); {$I+}
-{$IfDef UNIX}
+{$IfDef Linux}
    Chmod(Name, FilePerm);
 {$EndIf}
    CreateSem := (IOResult = 0) and (i = 0);
@@ -1280,10 +1311,10 @@ Var
  End;
 
 Begin
-{$IfDef UNIX}
+{$IfDef Linux}
 If (DOS.GetEnv('UMASK') <> '') then
  Begin
- FilePerm := Octal(StrToInt(DOS.GetEnv('UMASK')));
+ FilePerm := OctalStrToInt(DOS.GetEnv('UMASK'));
  FilePerm := 511 and not FilePerm;
  DirPerm := FilePerm;
  End
